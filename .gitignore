@@ -41,3 +41,6 @@ build
 servers
 mocks
 test/file-servers/
+
+# internal url
+test/internal/

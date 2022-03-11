@@ -149,12 +149,12 @@ const getType = (schemaObject: SchemaObject | undefined, namespace: string = '')
   if (type === 'enum') {
     return Array.isArray(schemaObject.enum)
       ? Array.from(
-          new Set(
-            schemaObject.enum.map((v) =>
-              typeof v === 'string' ? `"${v.replace(/"/g, '"')}"` : getType(v),
-            ),
+        new Set(
+          schemaObject.enum.map((v) =>
+            typeof v === 'string' ? `"${v.replace(/"/g, '"')}"` : getType(v),
           ),
-        ).join(' | ')
+        ),
+      ).join(' | ')
       : 'string';
   }
 
@@ -248,25 +248,25 @@ class ServiceGenerator {
   protected config: GenerateServiceProps;
   protected openAPIData: OpenAPIObject;
 
-  constructor(config: GenerateServiceProps, openAPIData: OpenAPIObject) {
+  constructor(config: GenerateServiceProps, openAPIData: any) {
     this.finalPath = '';
     this.config = {
       projectName: 'api',
       templatesFolder: join(__dirname, '../', 'templates'),
       ...config,
     };
-    this.openAPIData = openAPIData;
-    const { info } = openAPIData;
-    const basePath = '';
+    this.openAPIData = openAPIData.openapi;
+    const { info } = this.openAPIData;
+    const basePath = openAPIData?.original?.basePath || '';
     this.version = info.version;
-    Object.keys(openAPIData.paths || {}).forEach((p) => {
-      const pathItem: PathItemObject = openAPIData.paths[p];
+    Object.keys(this.openAPIData.paths || {}).forEach((p) => {
+      const pathItem: PathItemObject = this.openAPIData.paths[p];
       ['get', 'put', 'post', 'delete', 'patch'].forEach((method) => {
         const operationObject: OperationObject = pathItem[method];
         if (!operationObject) {
           return;
         }
-
+        console.log(JSON.stringify)
         // const tags = pathItem['x-swagger-router-controller']
         //   ? [pathItem['x-swagger-router-controller']]
         //   : operationObject.tags || [operationObject.operationId] || [
@@ -276,8 +276,8 @@ class ServiceGenerator {
         const tags = operationObject['x-swagger-router-controller']
           ? [operationObject['x-swagger-router-controller']]
           : operationObject.tags || [operationObject.operationId] || [
-              p.replace('/', '').split('/')[1],
-            ];
+            p.replace('/', '').split('/')[1],
+          ];
 
         tags.forEach((tagString) => {
           const tag = resolveTypeName(tagString);
@@ -399,8 +399,8 @@ class ServiceGenerator {
                 this.config.hook && this.config.hook.customFunctionName
                   ? this.config.hook.customFunctionName(newApi)
                   : newApi.operationId
-                  ? this.resolveFunctionName(stripDot(newApi.operationId), newApi.method)
-                  : newApi.method + this.genDefaultFunctionName(newApi.path, pathBasePrefix);
+                    ? this.resolveFunctionName(stripDot(newApi.operationId), newApi.method)
+                    : newApi.method + this.genDefaultFunctionName(newApi.path, pathBasePrefix);
 
               if (functionName && tmpFunctionRD[functionName]) {
                 functionName = `${functionName}_${(tmpFunctionRD[functionName] += 1)}`;
@@ -458,11 +458,11 @@ class ServiceGenerator {
                 const prefix =
                   typeof this.config.apiPrefix === 'function'
                     ? `${this.config.apiPrefix({
-                        path: formattedPath,
-                        method: newApi.method,
-                        namespace: tag,
-                        functionName,
-                      })}`.trim()
+                      path: formattedPath,
+                      method: newApi.method,
+                      namespace: tag,
+                      functionName,
+                    })}`.trim()
                     : this.config.apiPrefix.trim();
 
                 if (!prefix) {
@@ -786,17 +786,17 @@ class ServiceGenerator {
     const requiredPropKeys = schemaObject?.required ?? false;
     return schemaObject.properties
       ? Object.keys(schemaObject.properties).map((propName) => {
-          const schema: SchemaObject =
-            (schemaObject.properties && schemaObject.properties[propName]) || DEFAULT_SCHEMA;
-          return {
-            ...schema,
-            name: propName,
-            type: getType(schema),
-            desc: [schema.title, schema.description].filter((s) => s).join(' '),
-            // 如果没有 required 信息，默认全部是非必填
-            required: requiredPropKeys ? requiredPropKeys.some((key) => key === propName) : false,
-          };
-        })
+        const schema: SchemaObject =
+          (schemaObject.properties && schemaObject.properties[propName]) || DEFAULT_SCHEMA;
+        return {
+          ...schema,
+          name: propName,
+          type: getType(schema),
+          desc: [schema.title, schema.description].filter((s) => s).join(' '),
+          // 如果没有 required 信息，默认全部是非必填
+          required: requiredPropKeys ? requiredPropKeys.some((key) => key === propName) : false,
+        };
+      })
       : [];
   }
 

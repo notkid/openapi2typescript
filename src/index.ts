@@ -74,7 +74,7 @@ const converterSwaggerToOpenApi = (swagger: any) => {
         reject(err);
         return;
       }
-      resolve(options.openapi);
+      resolve(options);
     });
   });
 };
