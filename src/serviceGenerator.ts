@@ -64,7 +64,7 @@ const resolveTypeName = (typeName: string) => {
     return name;
   }
 
-  return pinyin.convertToPinyin(name, '', true);
+  return pinyin.convertToPinyin(name, '', true).replace(/\s*/g,"");
 };
 
 function getRefName(refObject: any): string {
@@ -266,7 +266,6 @@ class ServiceGenerator {
         if (!operationObject) {
           return;
         }
-        console.log(JSON.stringify)
         // const tags = pathItem['x-swagger-router-controller']
         //   ? [pathItem['x-swagger-router-controller']]
         //   : operationObject.tags || [operationObject.operationId] || [

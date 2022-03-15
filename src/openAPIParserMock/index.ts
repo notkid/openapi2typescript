@@ -187,8 +187,8 @@ class OpenAPIGeneratorMockJs {
           const response = api.responses[code];
           const schema =
             response.content &&
-            response.content['application/json'] &&
-            utils.inferSchema(response.content['application/json']);
+            response.content['*/*'] &&
+            utils.inferSchema(response.content['*/*']);
 
           if (schema) {
             response.example = schema ? this.sampleFromSchema(schema) : null;

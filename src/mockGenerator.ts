@@ -164,7 +164,7 @@ ${mockFunction.join('\n,')}
 export type genMockDataServerConfig = { openAPI: any; mockFolder: string };
 
 const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) => {
-  const openAPParse = new OpenAPIParserMock(openAPI);
+  const openAPParse = new OpenAPIParserMock(openAPI.openapi);
   const docs = openAPParse.parser();
   const pathList = Object.keys(docs.paths);
   const { paths } = docs;
@@ -173,6 +173,7 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
     const pathConfig = paths[path];
     Object.keys(pathConfig).forEach((method) => {
       const methodConfig = pathConfig[method];
+      console.log(methodConfig)
       if (methodConfig) {
         let conte = (
           methodConfig.operationId ||
@@ -180,7 +181,7 @@ const mockGenerator = async ({ openAPI, mockFolder }: genMockDataServerConfig) =
           path.replace('/', '').split('/')[1]
         )?.replace(/[^\w^\s^\u4e00-\u9fa5]/gi, '');
         if (/[\u3220-\uFA29]/.test(conte)) {
-          conte = pinyin.convertToPinyin(conte, '', true)
+          conte = pinyin.convertToPinyin(conte, '', true).replace(/\s*/g,"")
         }
         if (!conte) {
           return;
