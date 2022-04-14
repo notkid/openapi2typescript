@@ -1,13 +1,12 @@
 {
-  "name": "@umijs/openapi",
-  "version": "1.4.3",
+  "name": "@mtx/openapi",
+  "version": "1.4.4",
   "description": "",
   "repository": {
-    "type": "git",
-    "url": "git+git@github.com:chenshuai2144/openapi2typescript.git"
+    "type": "git"
   },
   "license": "MIT",
-  "author": "chenshuai2144",
+  "author": "notkid",
   "main": "dist/index.js",
   "files": [
     "dist",
