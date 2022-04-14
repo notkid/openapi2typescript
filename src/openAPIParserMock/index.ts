@@ -120,7 +120,7 @@ class OpenAPIGeneratorMockJs {
     this.sampleFromSchema = memoizee(this.sampleFromSchema);
   }
 
-  sampleFromSchema = (schema: any, propsName?: string[]) => {
+  sampleFromSchema = (schema: any, propsName?: string[], level?: number) => {
     const localSchema = schema.$ref
       ? utils.get(this.openAPI, schema.$ref.replace('#/', '').split('/'))
       : utils.objectify(schema);
@@ -139,10 +139,11 @@ class OpenAPIGeneratorMockJs {
     }
 
     if (type === 'object') {
+      if (level > 4) return
       const props = utils.objectify(properties);
       const obj: Record<string, any> = {};
       for (const name in props) {
-        obj[name] = this.sampleFromSchema(props[name], [...(propsName || []), name]);
+        obj[name] = this.sampleFromSchema(props[name], [...(propsName || []), name], (level || 0) + 1);
       }
 
       if (additionalProperties === true) {
@@ -151,7 +152,7 @@ class OpenAPIGeneratorMockJs {
       }
       if (additionalProperties) {
         const additionalProps = utils.objectify(additionalProperties);
-        const additionalPropVal = this.sampleFromSchema(additionalProps, propsName);
+        const additionalPropVal = this.sampleFromSchema(additionalProps, propsName,(level || 0) + 1);
 
         for (let i = 1; i < 4; i += 1) {
           obj[`additionalProp${i}`] = additionalPropVal;
@@ -161,7 +162,8 @@ class OpenAPIGeneratorMockJs {
     }
 
     if (type === 'array') {
-      const item = this.sampleFromSchema(items, propsName);
+      if (level > 4) return
+      const item = this.sampleFromSchema(items, propsName,(level || 0) + 1);
       return new Array(parseInt((Math.random() * 20).toFixed(0), 10)).fill(item);
     }
 
