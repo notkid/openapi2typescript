@@ -110,6 +110,10 @@ const getType = (schemaObject: SchemaObject | undefined, namespace: string = '')
     type = 'number';
   }
 
+  if (schemaObject.format === 'int64') {
+    type = 'string'
+  }
+
   if (schemaObject.enum) {
     type = 'enum';
   }
